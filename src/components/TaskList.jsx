@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { Droppable } from "react-beautiful-dnd";
 import { icons } from "../assets";
 
+
 import AddItem from "./AddItem";
 import AddItemForm from "./AddItemForm";
 
@@ -15,8 +16,8 @@ const TaskList = ({ taskList }) => {
 	const [taskTitle, setTaskTitle] = useState("");
 
 	const { tasks: allTasks, dispatchTaskAction } = useContext(TaskContext);
-	const { dispatchListAction } = useContext(ListContext);
-	const { dispatchBoardAction } = useContext(BoardContext);
+	const { lists,dispatchListAction } = useContext(ListContext);
+	const { boards,dispatchBoardAction } = useContext(BoardContext);
 
 	const submitHandler = (e) => {
 		e.preventDefault();
@@ -57,12 +58,68 @@ const TaskList = ({ taskList }) => {
 			dispatchTaskAction({ type: "REMOVE_TASK", payload: taskId });
 		});
 	};
+	const [isOpen, setIsOpen] = useState(false);
 
+	const handleClick = (e) => {
+		e.stopPropagation();
+	  setIsOpen(!isOpen);
+	};
+	const [isOpenMove, setIsOpenMove] = useState(false);
+
+	const handleClickMove = (e) => {
+		e.stopPropagation();
+		setIsOpenMove(!isOpenMove);
+	};
+
+	const [isOpenCopy, setIsOpenCopy] = useState(false);
+
+	const handleClickCopy = (e) => {
+		e.stopPropagation();
+	  setIsOpenCopy(!isOpenCopy);
+	};
+const prevent=(e) => {
+  e.stopPropagation();
+};
+// 	const [isDown, setIsDown] = useState(false);
+
+// 	const handleClickBoardDown = () => {
+// 	  setIsDown(!isDown);
+// 	};
+
+
+const [selectedBoard, setSelectedBoard] = useState('');
+  const [selectedList, setSelectedList] = useState('');
+
+  const handleClickMoved = () => {
+    if (selectedBoard && selectedList) {
+		// Dispatch an action to change the board of the selected list
+		dispatchListAction({
+			type:"CHANGE_BOARD_ID_OF_A_LIST",
+			payload:{ id: selectedList, boardId: selectedBoard }
+		});
+  
+		// Dispatch an action to add the list to the selected board
+		// dispatchBoardAction({
+		// 	type:"ADD_LIST_ID_TO_A_BOARD",
+		// payload:{ listId: selectedList, boardId: selectedBoard }
+		// });
+	  }
+  };
+
+  const handleBoardChange = (event) => {
+    setSelectedBoard(event.target.value);
+	
+  };
+
+  const handleListChange = (event) => {
+    setSelectedList(event.target.value);
+  };
 	return (
 		<Droppable droppableId={taskList.id}>
 			{(provided) => {
 				// console.log(provided, "params from dropabble");
 				return (
+					
 					<div
 						{...provided.droppableProps}
 						ref={provided.innerRef}
@@ -72,6 +129,72 @@ const TaskList = ({ taskList }) => {
 						<div className="list-title-container">
 						
 							<h5>{taskList.title}</h5>
+							<img
+								onClick={handleClick}
+								src={icons.editIcon}
+								alt=""
+								className="add-item-icon"
+							/>
+							{isOpen && (
+							<div className="dropdown-menu">
+	<form action="">
+      <div onClick={handleClickMove}>
+        Move
+        {isOpenMove && (
+          <div className="dropdown-menu">
+            <div onClick={prevent}>Boards
+              <select value={selectedBoard} onChange={handleBoardChange}>
+                <option>Select a board</option>
+                {boards.map((board) => (
+                  <option key={board.id} value={board.id}>
+                    {board.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div onClick={prevent}>TaskLists
+              <select value={selectedList} onChange={handleListChange}>
+                <option>Select task list</option>
+                {lists.map((list) => (
+                  <option key={list.id} value={list.id}>
+                    {list.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button className="add-button" onClick={handleClickMoved}>
+              Move
+            </button>
+          </div>
+        )}
+      </div>
+    </form>
+							
+							
+							
+							
+							
+							
+							<div onClick={handleClickCopy}>Copy
+
+							{isOpenCopy && (
+												<div className="dropdown-menu">
+												<div onClick={prevent}>Boards
+												<select value={selectedBoard} onChange={handleBoardChange}>
+												<option>Select a board</option>
+												{boards.map((board) => (
+												<option key={board.id} value={board.id}>
+													{board.title}
+												</option>
+												))}
+											</select>			
+												</div>
+												
+												</div>
+												)}	
+							</div>
+							</div>
+      )}
 							<img
 								onClick={removeHandler}
 								src={icons.crossIcon}
