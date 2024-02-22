@@ -14,7 +14,7 @@ export const listReducer = (lists = [], action) => {
 				id: action.payload.id,
 				title: action.payload.title,
 				boardId: action.payload.boardId,
-				tasks: [],
+				tasks: action.payload.tasks? action.payload.tasks:[],
 			};
 
 			return [...lists, newList];

@@ -34,7 +34,9 @@ export const taskReducer = (tasks = [], action) => {
 
 		case "CHANGE_LIST_ID_OF_A_TASK": {
 			return tasks.map((item) => {
+				
 				if (item.id === action.payload.id) {
+					console.log(action.payload.id,action.payload.listId);
 					return { ...item, listId: action.payload.listId };
 				}
 

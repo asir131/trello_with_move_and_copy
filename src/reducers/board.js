@@ -35,15 +35,20 @@ export const boardReducer = (boards = [], action) => {
 		}
 
 		case "ADD_LIST_ID_TO_A_BOARD": {
+			
 			return boards.map((item) => {
 				if (item.id === action.payload.id) {
+					
 					return {
 						...item,
 						lists: [...item.lists, action.payload.listId],
+						
 					};
+					
 				}
 				return item;
 			});
+			
 		}
 
 		case "ADD_TASK_ID_TO_A_BOARD": {

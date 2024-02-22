@@ -16,7 +16,7 @@ const TaskList = ({ taskList }) => {
 	const [taskTitle, setTaskTitle] = useState("");
 
 	const { tasks: allTasks, dispatchTaskAction } = useContext(TaskContext);
-	const { lists,dispatchListAction } = useContext(ListContext);
+	const { dispatchListAction  } = useContext(ListContext);
 	const { boards,dispatchBoardAction } = useContext(BoardContext);
 
 	const submitHandler = (e) => {
@@ -60,21 +60,21 @@ const TaskList = ({ taskList }) => {
 	};
 	const [isOpen, setIsOpen] = useState(false);
 
-	const handleClick = (e) => {
-		e.stopPropagation();
+	const handleClick = () => {
+		
 	  setIsOpen(!isOpen);
 	};
 	const [isOpenMove, setIsOpenMove] = useState(false);
 
-	const handleClickMove = (e) => {
-		e.stopPropagation();
+	const handleClickMove = () => {
+		
 		setIsOpenMove(!isOpenMove);
 	};
 
 	const [isOpenCopy, setIsOpenCopy] = useState(false);
 
-	const handleClickCopy = (e) => {
-		e.stopPropagation();
+	const handleClickCopy = () => {
+		
 	  setIsOpenCopy(!isOpenCopy);
 	};
 const prevent=(e) => {
@@ -88,32 +88,81 @@ const prevent=(e) => {
 
 
 const [selectedBoard, setSelectedBoard] = useState('');
-  const [selectedList, setSelectedList] = useState('');
+//  const [selectedList] = useState('');
 
-  const handleClickMoved = () => {
-    if (selectedBoard && selectedList) {
+
+
+  const handleClickCopied=(e) => {
+	
+   console.log(taskList.id);
+   const listId= Date.now()+"";
+		// Dispatch an action to change the board of the selected list
+		dispatchBoardAction({
+			type:"ADD_LIST_ID_TO_A_BOARD",
+			payload:{ id:selectedBoard, listId: listId}
+		});
+		const taskIds=[];
+		taskList.tasks.forEach((Tid)=> {
+			const taskObj = allTasks.find((ele)=>ele.id===Tid)
+			const TaskID=Date.now()+"";
+			dispatchTaskAction({
+				type:"CREATE_TASK",
+				payload:{
+					id: TaskID,
+					title: taskObj.title,
+					listId:listId,
+					boardId:selectedBoard,
+				}
+	     
+			});
+			taskIds.push(TaskID);
+		});
+		dispatchListAction({
+			type: "CREATE_LIST",
+			payload:{
+				id:listId,
+				title:taskList.title,
+				boardId:selectedBoard,
+				tasks: taskIds,
+
+
+			}
+		});
+			
+  };
+  const handleClickMoved = (e) => {
+	
+	// dispatchBoardAction({
+	// 	type:"ADD_LIST_ID_TO_A_BOARD",
+	// payload:{ listId: selectedList, boardId: selectedBoard }
+	// });
 		// Dispatch an action to change the board of the selected list
 		dispatchListAction({
 			type:"CHANGE_BOARD_ID_OF_A_LIST",
-			payload:{ id: selectedList, boardId: selectedBoard }
+			payload:{ id: taskList.id, boardId: selectedBoard }
 		});
+		// dispatchBoardAction({
+		// 	type:"REMOVE_LIST_ID_FROM_A_BOARD",
+		// 	payload:{ listId: taskList.id, boardId: taskList.boardId }
+		// });
+		
+	console.log(boards,taskList.boardId);
   
 		// Dispatch an action to add the list to the selected board
-		// dispatchBoardAction({
-		// 	type:"ADD_LIST_ID_TO_A_BOARD",
-		// payload:{ listId: selectedList, boardId: selectedBoard }
-		// });
-	  }
+		
+	  
   };
+  
 
   const handleBoardChange = (event) => {
+	
     setSelectedBoard(event.target.value);
 	
   };
 
-  const handleListChange = (event) => {
-    setSelectedList(event.target.value);
-  };
+//   const handleListChange = (event) => {
+//     setSelectedList(event.target.value);
+//   };
 	return (
 		<Droppable droppableId={taskList.id}>
 			{(provided) => {
@@ -137,12 +186,12 @@ const [selectedBoard, setSelectedBoard] = useState('');
 							/>
 							{isOpen && (
 							<div className="dropdown-menu">
-	<form action="">
+	<form >
       <div onClick={handleClickMove}>
         Move
         {isOpenMove && (
           <div className="dropdown-menu">
-            <div onClick={prevent}>Boards
+            <div onClick={prevent}>
               <select value={selectedBoard} onChange={handleBoardChange}>
                 <option>Select a board</option>
                 {boards.map((board) => (
@@ -152,16 +201,16 @@ const [selectedBoard, setSelectedBoard] = useState('');
                 ))}
               </select>
             </div>
-            <div onClick={prevent}>TaskLists
+            {/* <div onClick={prevent}>
               <select value={selectedList} onChange={handleListChange}>
-                <option>Select task list</option>
+                <option>Select list</option>
                 {lists.map((list) => (
                   <option key={list.id} value={list.id}>
                     {list.title}
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
             <button className="add-button" onClick={handleClickMoved}>
               Move
             </button>
@@ -178,19 +227,26 @@ const [selectedBoard, setSelectedBoard] = useState('');
 							<div onClick={handleClickCopy}>Copy
 
 							{isOpenCopy && (
-												<div className="dropdown-menu">
-												<div onClick={prevent}>Boards
-												<select value={selectedBoard} onChange={handleBoardChange}>
+								<div className="dropdown-menu">
+										<form >
+
+											<div onClick={prevent}>
+											<select value={selectedBoard} onChange={handleBoardChange}>
 												<option>Select a board</option>
 												{boards.map((board) => (
 												<option key={board.id} value={board.id}>
 													{board.title}
 												</option>
 												))}
-											</select>			
-												</div>
+											</select>	
+											
+											</div>
+											<button className="add-button" type="submit" onClick={handleClickCopied}>
+												Copy to
+												</button>		
+										</form>
 												
-												</div>
+									</div>
 												)}	
 							</div>
 							</div>
