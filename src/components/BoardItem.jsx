@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useContext } from "react";
 
 import { BoardContext } from "../contexts/Board";
 import { ListContext } from "../contexts/List";
